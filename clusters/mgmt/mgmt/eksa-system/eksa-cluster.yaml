@@ -1,0 +1,60 @@
+apiVersion: anywhere.eks.amazonaws.com/v1alpha1
+kind: Cluster
+metadata:
+  name: mgmt
+  namespace: default
+spec:
+  bundlesRef:
+    apiVersion: anywhere.eks.amazonaws.com/v1alpha1
+    name: bundles-42
+    namespace: eksa-system
+  clusterNetwork:
+    cniConfig:
+      cilium: {}
+    pods:
+      cidrBlocks:
+      - 192.168.0.0/16
+    services:
+      cidrBlocks:
+      - 10.96.0.0/12
+  controlPlaneConfiguration:
+    count: 1
+  datacenterRef:
+    kind: DockerDatacenterConfig
+    name: mgmt
+  externalEtcdConfiguration:
+    count: 1
+  gitOpsRef:
+    kind: FluxConfig
+    name: mgmt
+  kubernetesVersion: "1.26"
+  managementCluster:
+    name: mgmt
+  workerNodeGroupConfigurations:
+  - count: 1
+    name: md-1
+
+---
+apiVersion: anywhere.eks.amazonaws.com/v1alpha1
+kind: DockerDatacenterConfig
+metadata:
+  name: mgmt
+  namespace: default
+spec: {}
+
+---
+apiVersion: anywhere.eks.amazonaws.com/v1alpha1
+kind: FluxConfig
+metadata:
+  name: mgmt
+  namespace: default
+spec:
+  branch: main
+  clusterConfigPath: clusters/mgmt
+  github:
+    owner: vjeevarajaws
+    personal: true
+    repository: eks-a-cluster
+  systemNamespace: flux-system
+
+---
